@@ -1,0 +1,3 @@
+[console_scripts]
+seg_mbtiles_creator = MBTiles_Segmentation.seg_dataset_creator:main
+seg_mbtiles_handler = MBTiles_Segmentation.mbtiles_handler:main

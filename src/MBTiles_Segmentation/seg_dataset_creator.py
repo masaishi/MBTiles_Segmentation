@@ -5,7 +5,7 @@ import shutil
 import glob
 from PIL import Image, ImageDraw
 
-from mbtiles_handler import MbtileHandler
+from MBTiles_Segmentation import MBTilesHandler 
 
 DEFAULT_COLOR_MAPPING = {
 	'minor': '#FF5733',    # Red
@@ -27,7 +27,7 @@ class SegDatasetCreator:
 		self.folder_path = folder_path
 		self.mbtiles_path = mbtiles_path
 		self.color_mapping = color_mapping
-		self.mbtiles_handler = MbtileHandler(mbtiles_path)
+		self.mbtiles_handler = MBTilesHandler(mbtiles_path)
 		self.min_num_objs = min_num_objs
 
 	def create_directories(self):
@@ -62,7 +62,6 @@ class SegDatasetCreator:
 		for coord in line_coords:
 			draw.ellipse((coord[0] - 2, coord[1] - 2, coord[0] + 2, coord[1] + 2), fill=color)
 		draw.line(line_coords, fill=color, width=1)
-				
 
 	def create_img(self, df, output_path: str):
 		img = Image.new('RGB', (1024, 1024), color='white')
@@ -86,21 +85,6 @@ class SegDatasetCreator:
 	def create_label(self, df, output_path: str):
 		new_df = df[df['class'].isin(self.color_mapping.keys())]
 
-		#for idx, row in new_df.iterrows():
-		#	if row['type'] == 'LineString':
-		#		coordinates = [(x / 4096, y / 4096) for (x, y) in row['coordinates']]
-		#		coordinates = [coord for coord in coordinates if coord[0] >= 0 and coord[0] <= 1 and coord[1] >= 0 and coord[1] <= 1]
-		#		if len(coordinates) == 0:
-		#			continue
-		#		txt_dict[row['class']] = txt_dict.get(row['class'], []) + coordinates
-		#	elif row['type'] == 'MultiLineString':
-		#		for line in row['coordinates']:
-		#			coordinates = [(x / 4096, y / 4096) for (x, y) in line]
-		#			coordinates = [coord for coord in coordinates if coord[0] >= 0 and coord[0] <= 1 and coord[1] >= 0 and coord[1] <= 1]
-		#			if len(coordinates) == 0:
-		#				continue
-		#			txt_dict[row['class']] = txt_dict.get(row['class'], []) + coordinates
-
 		with open(output_path, 'w') as txt_file:
 			for idx, row in new_df.iterrows():
 				if row['type'] == 'LineString':
@@ -108,14 +92,14 @@ class SegDatasetCreator:
 					coordinates = [coord for coord in coordinates if coord[0] >= 0 and coord[0] <= 1 and coord[1] >= 0 and coord[1] <= 1]
 					if len(coordinates) == 0:
 						continue
-					txt_file.write(f"{self._class_to_idx(row['class'])} " + ' '.join([str(coord) for coord in coordinates]) + "\n")
+					txt_file.write(f"{self._class_to_idx(row['class'])} {' '.join(map(str, [c for coords in coordinates for c in coords]))}\n")
 				elif row['type'] == 'MultiLineString':
 					for line in row['coordinates']:
 						coordinates = [(x / 1024, y / 1024) for (x, y) in line]
 						coordinates = [coord for coord in coordinates if coord[0] >= 0 and coord[0] <= 1 and coord[1] >= 0 and coord[1] <= 1]
 						if len(coordinates) == 0:
 							continue
-						txt_file.write(f"{self._class_to_idx(row['class'])} " + ' '.join([str(coord) for coord in coordinates]) + "\n")
+						txt_file.write(f"{self._class_to_idx(row['class'])} {' '.join(map(str, [c for coords in coordinates for c in coords]))}\n")
 			
 	def create_dataset(self, zoom_range: list[int, int] = [11, 14], each_image_num: int = 50, val_ratio: float = 0.2): 
 		self.create_directories()
@@ -135,15 +119,23 @@ class SegDatasetCreator:
 			shutil.move(f"{self.folder_path}/labels/train/{file_name}.txt", f"{self.folder_path}/labels/val/{file_name}.txt")
 
 
-if __name__ == "__main__":
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--folder_path", type=str, default="sample/japan_tokyo_dataset")
-	parser.add_argument("--mbtiles_path", type=str, default="sample/japan_tokyo.mbtiles")
-	parser.add_argument("--each_image_num", type=int, default=50)
-	parser.add_argument("--val_ratio", type=float, default=0.2)
-	args = parser.parse_args()
+def parse_args(input_args=None):
+	parser = argparse.ArgumentParser(description="Segmentation Dataset Creator")
+	parser.add_argument("--folder_path", type=str, default="sample/japan_tokyo_dataset", help="Path to the output folder")
+	parser.add_argument("--mbtiles_path", type=str, default="sample/japan_tokyo.mbtiles", help="Path to the MBTiles file")
+	parser.add_argument("--each_image_num", type=int, default=50, help="Number of images to create for each zoom level")
+	parser.add_argument("--val_ratio", type=float, default=0.2, help="Validation data ratio")
 
+	if input_args is not None:
+		args = parser.parse_args(input_args)
+	else:
+		args = parser.parse_args()
+	return args
+
+def main():
+	args = parse_args()
 	creator = SegDatasetCreator(args.folder_path, args.mbtiles_path)
 	creator.create_dataset(each_image_num=args.each_image_num, val_ratio=args.val_ratio)
 
-	#creator.create_img(creator.mbtiles_handler.get_random_tile(11), "sample/test.png")
+if __name__ == "__main__":
+	main()

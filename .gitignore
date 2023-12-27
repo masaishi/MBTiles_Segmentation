@@ -5,4 +5,5 @@
 
 sample/
 
-src/__pycache__/
+src/MBTiles_Segmentation/__pycache__/
+build/

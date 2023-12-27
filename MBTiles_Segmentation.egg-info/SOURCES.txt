@@ -1,0 +1,7 @@
+README.md
+setup.py
+MBTiles_Segmentation.egg-info/PKG-INFO
+MBTiles_Segmentation.egg-info/SOURCES.txt
+MBTiles_Segmentation.egg-info/dependency_links.txt
+MBTiles_Segmentation.egg-info/requires.txt
+MBTiles_Segmentation.egg-info/top_level.txt

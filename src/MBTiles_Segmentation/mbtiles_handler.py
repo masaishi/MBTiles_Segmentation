@@ -7,9 +7,9 @@ import pandas as pd
 import mapbox_vector_tile as mvt
 from typing import Tuple, Optional, List
 
-from geometry_wkt_converter import geometry_to_wkt
+from MBTiles_Segmentation import geometry_to_wkt
 
-class MbtileHandler:
+class MBTilesHandler:
 	def __init__(self, mbtile: str, drop_lines: bool = False, drop_points: bool = True,
 				drop_polygons: bool = True, min_num_objs: int = 5):
 		r"""Initializes a MbtileUtils object.
@@ -133,11 +133,37 @@ class MbtileHandler:
 		else:
 			return dfs
 
+def parse_args(input_args=None):
+	parser = argparse.ArgumentParser(description="MBTiles Handler")
+	parser.add_argument("--mbtiles_path", type=str, default="sample/japan_tokyo.mbtiles", help="Path to the MBTiles file")
+	parser.add_argument("--zoom_minmax", action="store_true", help="Get zoom level min and max")
+	parser.add_argument("--column_minmax", type=int, help="Get column min and max for a specific zoom level")
+	parser.add_argument("--row_minmax", type=int, help="Get row min and max for a specific zoom level")
+	parser.add_argument("--get_tile", nargs=3, type=int, metavar=("ZOOM", "COL", "ROW"), help="Get tile data")
+	parser.add_argument("--get_random_tile", type=int, metavar="ZOOM", help="Get random tile data for a specific zoom level")
+	parser.add_argument("--get_area_tiles", nargs=4, type=int, metavar=("ZOOM_STD", "COL_STD", "ROW_STD", "ZOOM"), help="Get area tiles")
+
+	if input_args is not None:
+		args = parser.parse_args(input_args)
+	else:
+		args = parser.parse_args()
+	return args
+
+def main():
+	args = parse_args()
+	mbtile_handler = MBTilesHandler(args.mbtiles_path)
+	if args.zoom_minmax:
+		print(mbtile_handler.get_zoom_minmax())
+	elif args.column_minmax:
+		print(mbtile_handler.get_column_minmax(args.column_minmax))
+	elif args.row_minmax:
+		print(mbtile_handler.get_row_minmax(args.row_minmax))
+	elif args.get_tile:
+		print(mbtile_handler.get_tile(*args.get_tile))
+	elif args.get_random_tile:
+		print(mbtile_handler.get_random_tile(args.get_random_tile))
+	elif args.get_area_tiles:
+		print(mbtile_handler.get_area_tiles(*args.get_area_tiles))
+
 if __name__ == "__main__":
-    mbtiles_handler = MbtileHandler("sample/japan_tokyo.mbtiles")
-    print(mbtiles_handler.get_zoom_minmax())
-    print(mbtiles_handler.get_column_minmax(14))
-    print(mbtiles_handler.get_row_minmax(14))
-    print(mbtiles_handler.get_tile(10, 909, 620))
-    print(mbtiles_handler.get_random_tile(14))
-    print(mbtiles_handler.get_area_tiles(10, 909, 620, 11))
+	main()
