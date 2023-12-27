@@ -125,6 +125,7 @@ def parse_args(input_args=None):
 	parser.add_argument("--mbtiles_path", type=str, default="sample/japan_tokyo.mbtiles", help="Path to the MBTiles file")
 	parser.add_argument("--each_image_num", type=int, default=50, help="Number of images to create for each zoom level")
 	parser.add_argument("--val_ratio", type=float, default=0.2, help="Validation data ratio")
+	parser.add_argument("--min_num_objs", type=int, default=10, help="Minimum number of objects in each image")
 
 	if input_args is not None:
 		args = parser.parse_args(input_args)
@@ -134,7 +135,7 @@ def parse_args(input_args=None):
 
 def main():
 	args = parse_args()
-	creator = SegDatasetCreator(args.folder_path, args.mbtiles_path)
+	creator = SegDatasetCreator(args.folder_path, args.mbtiles_path, min_num_objs=args.min_num_objs)
 	creator.create_dataset(each_image_num=args.each_image_num, val_ratio=args.val_ratio)
 
 if __name__ == "__main__":
