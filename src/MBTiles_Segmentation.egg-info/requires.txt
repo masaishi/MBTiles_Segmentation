@@ -1,4 +1,0 @@
-argparse
-pandas
-mapbox_vector_tile
-Pillow

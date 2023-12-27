@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
 
 install_requires = [
-	'argparse',
 	'pandas',
 	'mapbox_vector_tile',
 	'Pillow'
@@ -16,7 +15,7 @@ setup(
 	long_description_content_type='text/markdown',
 	license='MIT License',
 	url='https://github.com/masaishi/MBTiles_Segmentation',
-	version='0.1',
+	version='0.1.1',
 	python_requires='>=3.6',
 	install_requires=install_requires,
 	package_dir={"": "src"},

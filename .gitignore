@@ -3,7 +3,13 @@
 .AppleDouble
 .LSOverride
 
+.pypirc
+
 sample/
 
-src/MBTiles_Segmentation/__pycache__/
 build/
+dist/
+
+MBTiles_Segmentation.egg-info/
+src/MBTiles_Segmentation/__pycache__/
+src/MBTiles_Segmentation.egg-info/
